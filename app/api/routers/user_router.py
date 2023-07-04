@@ -13,7 +13,7 @@ router = APIRouter(prefix="/users", tags=["Пользователи"])
 
 @cbv(router)
 class UserCBV:
-    """Базовый класс для отображения пользователей."""
+    """Base class for User routing."""
 
     user_service: UserService = Depends()
 
@@ -26,7 +26,7 @@ class UserCBV:
         response_description="Регистрация нового пользователя.",
     )
     async def create_user(self, schema: UserCreateRequest) -> UserResponse:
-        """Регистрация нового пользователя."""
+        """Register new User."""
         return await self.user_service.register_new_user(schema)
 
     @router.get(
@@ -38,10 +38,10 @@ class UserCBV:
         response_description="Получить пользователя по его id.",
     )
     async def get_user(self, user_id: UUID) -> UserResponse:
-        """Получить пользователя по его id."""
+        """Get user by id."""
         return await self.user_service.get_user_by_id(user_id)
 
     @router.post("/login", response_model=UserLoginResponse, status_code=HTTPStatus.OK)
     async def login(self, auth_data: LoginRequest) -> UserLoginResponse:
-        """Аутентификация пользователя по username и паролю."""
+        """User authenticate by username and password."""
         return await self.user_service.login(auth_data)

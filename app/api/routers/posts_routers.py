@@ -15,6 +15,8 @@ router = APIRouter(prefix="/posts", tags=["Posts"])
 
 @cbv(router)
 class PostCBV:
+    """Class for Post routing."""
+
     post_service: PostService = Depends()
     user_service: UserService = Depends()
 

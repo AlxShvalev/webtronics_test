@@ -3,9 +3,9 @@ from pydantic import BaseModel, Extra
 
 class RequestBaseModel(BaseModel):
     """
-    Базовый класс для моделей запросов.
+    Base class for requests bodies.
 
-    Запрещена передача полей, не предусмотренных схемой.
+    Forbidden extra fields.
     """
 
     class Config:

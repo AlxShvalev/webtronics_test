@@ -9,7 +9,7 @@ from app.core.exceptions import UserNotFoundError
 
 
 class UserRepository(AbstractRepository):
-    """Репозиторий для работы с моделью User."""
+    """Repository for User model."""
 
     def __init__(self, session: AsyncSession = Depends(get_async_session)) -> None:
         super().__init__(session, User)

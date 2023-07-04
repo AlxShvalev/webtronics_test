@@ -24,14 +24,14 @@ class UserService:
         self.__user_repository = user_repository
 
     def _get_hashed_password(self, password: str) -> str:
-        """Получить хеш пароля."""
+        """Get password hash."""
         return PASSWORD_CONTEXT.hash(password)
 
     def _verify_hashed_password(self, password: str, hashed_password: str) -> bool:
         return PASSWORD_CONTEXT.verify(password, hashed_password)
 
     async def __authenticate_user(self, auth_data: LoginRequest) -> User:
-        """Аутентификация пользователя по username и паролю."""
+        """Authenticate User by username and password."""
         user = await self.__user_repository.get_by_username(auth_data.username)
         password = auth_data.password.get_secret_value()
         if not self._verify_hashed_password(password, user.hashed_password):
@@ -40,11 +40,11 @@ class UserService:
 
     def __create_jwt_token(self, username: str, expires_delta: int) -> str:
         """
-        Создать JWT token.
+        Create JWT token.
 
-        Аргументы:
-            username (str) - username пользователя,
-            expires_delta (int) - время жизни токена.
+        Arguments:
+            username (str) - unique username,
+            expires_delta (int) - token lifetime.
         """
         expire = dt.datetime.utcnow() + dt.timedelta(minutes=expires_delta)
         to_encode = {"username": username, "exp": expire}
@@ -65,7 +65,7 @@ class UserService:
         return username
 
     async def login(self, auth_data: LoginRequest) -> UserLoginResponse:
-        """Получить access- и refresh- токены."""
+        """Get access- and refresh- tokens."""
         user = await self.__authenticate_user(auth_data)
         return UserLoginResponse(
             access_token=self.__create_jwt_token(user.username, settings.ACCESS_TOKEN_EXPIRES_MINUTES),
@@ -73,7 +73,7 @@ class UserService:
         )
 
     async def register_new_user(self, schema: UserCreateRequest) -> User:
-        """Регистрация пользователя."""
+        """User register."""
         user = User(
             username=schema.username,
             email=schema.email,
@@ -84,7 +84,7 @@ class UserService:
         return await self.__user_repository.create(user)
 
     async def get_user_by_id(self, id: UUID) -> User:
-        """Получить пользователя."""
+        """Get user."""
         return await self.__user_repository.get(id)
 
     async def get_user_by_username(self, username: str) -> User:

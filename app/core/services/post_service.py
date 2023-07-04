@@ -16,13 +16,16 @@ class PostService:
         self.__post_repository = post_repository
 
     async def create_post(self, post_data: PostCreateRequest, author: User) -> Post:
+        """Create new Post."""
         post = Post(title=post_data.title, text=post_data.text, author=author)
         return await self.__post_repository.create(post)
 
     async def get_posts(self) -> list[Post]:
+        """Get posts with authors."""
         return await self.__post_repository.get_posts_with_authors()
 
     async def update_post(self, post_id: UUID, post_data: PostUpdateRequest, user: User) -> Post:
+        """Update post."""
         post = await self.__post_repository.get(post_id)
         if post.author_id != user.id:
             raise HTTPException(

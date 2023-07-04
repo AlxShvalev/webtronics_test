@@ -7,6 +7,8 @@ from app.api.response_models.user_response import UserResponse
 
 
 class PostResponse(BaseModel):
+    """Body response for Post."""
+
     id: UUID
     title: str
     text: str
@@ -18,4 +20,6 @@ class PostResponse(BaseModel):
 
 
 class PostWithAuthorResponse(PostResponse):
+    """Body response for Post with User."""
+
     author: UserResponse

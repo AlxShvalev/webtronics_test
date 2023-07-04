@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class UserResponse(BaseModel):
-    """Тело ответа для модели User."""
+    """Body response for User model."""
 
     id: UUID
     username: str
@@ -17,7 +17,7 @@ class UserResponse(BaseModel):
 
 
 class UserLoginResponse(BaseModel):
-    """Тело ответа при аутентификации."""
+    """Body response for authentication."""
 
     access_token: str
     refresh_token: str

@@ -8,7 +8,7 @@ ENV_FILE = os.path.join(BASE_DIR / ".env")
 
 
 class Settings(BaseSettings):
-    """Настройки приложения."""
+    """Application settings."""
 
     DEBUG: bool = False
 
