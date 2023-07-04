@@ -8,7 +8,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from app.api.request_models.user_requests import LoginRequest, UserCreateRequest
-from app.api.response_models.user_response import UserLoginResponse, UserResponse
+from app.api.response_models.user_response import UserLoginResponse
 from app.core.db.models import User
 from app.core.db.repository.user_repository import UserRepository
 from app.core.settings import settings
@@ -55,12 +55,12 @@ class UserService:
             payload = jwt.decode(token=token, key=settings.SECRET_KEY, algorithms=[ALGORITHM])
         except JWTError:
             raise HTTPException(
-                status_code=HTTPStatus.UNAUTHORIZED, detail="У вас нат прав для просмотра данной страницы"
+                status_code=HTTPStatus.UNAUTHORIZED, detail="У вас нeт прав для просмотра данной страницы"
             )
         username = payload.get("username")
         if not username:
             raise HTTPException(
-                status_code=HTTPStatus.UNAUTHORIZED, detail="У вас нат прав для просмотра данной страницы"
+                status_code=HTTPStatus.UNAUTHORIZED, detail="У вас нeт прав для просмотра данной страницы"
             )
         return username
 
@@ -72,7 +72,7 @@ class UserService:
             refresh_token=self.__create_jwt_token(user.username, settings.REFRESH_TOKEN_EXPIRES_MINUTES),
         )
 
-    async def register_new_user(self, schema: UserCreateRequest) -> UserResponse:
+    async def register_new_user(self, schema: UserCreateRequest) -> User:
         """Регистрация пользователя."""
         user = User(
             username=schema.username,
@@ -83,7 +83,7 @@ class UserService:
         )
         return await self.__user_repository.create(user)
 
-    async def get_user_by_id(self, id: UUID) -> UserResponse:
+    async def get_user_by_id(self, id: UUID) -> User:
         """Получить пользователя."""
         return await self.__user_repository.get(id)
 
