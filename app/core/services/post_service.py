@@ -21,11 +21,11 @@ class PostService:
         return await self.__post_repository.create(post)
 
     async def get_posts(self) -> list[Post]:
-        """Get posts with authors."""
+        """Get Posts with authors."""
         return await self.__post_repository.get_posts_with_authors()
 
     async def update_post(self, post_id: UUID, post_data: PostUpdateRequest, user: User) -> Post:
-        """Update post."""
+        """Update Post."""
         post = await self.__post_repository.get(post_id)
         if post.author_id != user.id:
             raise HTTPException(
@@ -34,3 +34,10 @@ class PostService:
         post.title = post_data.title or post.title
         post.text = post_data.text or post.text
         return await self.__post_repository.update(post)
+
+    async def delete_post(self, post_id: UUID, user: User) -> Post:
+        """Delete Post."""
+        post = await self.__post_repository.get(post_id)
+        if post.author_id != user.id:
+            raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail="У вас нет прав на удаление этого поста.")
+        return await self.__post_repository.delete(post)

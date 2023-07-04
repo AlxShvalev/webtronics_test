@@ -39,3 +39,10 @@ class PostCBV:
     ) -> PostResponse:
         user = await self.user_service.get_user_by_token(token.credentials)
         return await self.post_service.update_post(post_id, post_data, user)
+
+    @router.delete("/{post_id}", response_model=PostResponse, status_code=HTTPStatus.OK)
+    async def delete_post(
+        self, post_id: UUID, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())
+    ) -> PostResponse:
+        user = await self.user_service.get_user_by_token(token.credentials)
+        return await self.post_service.delete_post(post_id, user)
