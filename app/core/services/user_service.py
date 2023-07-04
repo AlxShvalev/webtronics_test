@@ -1,14 +1,14 @@
 import datetime as dt
+from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt
+from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from app.api.request_models.user_requests import LoginRequest, UserCreateRequest
 from app.api.response_models.user_response import UserLoginResponse, UserResponse
-from app.core import exceptions
 from app.core.db.models import User
 from app.core.db.repository.user_repository import UserRepository
 from app.core.settings import settings
@@ -35,7 +35,7 @@ class UserService:
         user = await self.__user_repository.get_by_username(auth_data.username)
         password = auth_data.password.get_secret_value()
         if not self._verify_hashed_password(password, user.hashed_password):
-            raise exceptions.InvalidAuthenticationDataError
+            raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Неверный email или пароль")
         return user
 
     def __create_jwt_token(self, username: str, expires_delta: int) -> str:
@@ -49,6 +49,20 @@ class UserService:
         expire = dt.datetime.utcnow() + dt.timedelta(minutes=expires_delta)
         to_encode = {"username": username, "exp": expire}
         return jwt.encode(to_encode, settings.SECRET_KEY, ALGORITHM)
+
+    def __get_username_from_token(self, token: str) -> str:
+        try:
+            payload = jwt.decode(token=token, key=settings.SECRET_KEY, algorithms=[ALGORITHM])
+        except JWTError:
+            raise HTTPException(
+                status_code=HTTPStatus.UNAUTHORIZED, detail="У вас нат прав для просмотра данной страницы"
+            )
+        username = payload.get("username")
+        if not username:
+            raise HTTPException(
+                status_code=HTTPStatus.UNAUTHORIZED, detail="У вас нат прав для просмотра данной страницы"
+            )
+        return username
 
     async def login(self, auth_data: LoginRequest) -> UserLoginResponse:
         """Получить access- и refresh- токены."""
@@ -72,3 +86,13 @@ class UserService:
     async def get_user_by_id(self, id: UUID) -> UserResponse:
         """Получить пользователя."""
         return await self.__user_repository.get(id)
+
+    async def get_user_by_username(self, username: str) -> User:
+        """Get User by username."""
+        user = await self.__user_repository.get_by_username(username)
+        return user
+
+    async def get_user_by_token(self, token: str) -> User:
+        """Get User by jwt token."""
+        username = self.__get_username_from_token(token)
+        return await self.get_user_by_username(username)

@@ -20,6 +20,11 @@ class NotFoundError(ApplicationError):
     status_code: HTTPStatus = HTTPStatus.NOT_FOUND
 
 
+class UnauthorizedError(ApplicationError):
+    status_code: HTTPStatus = HTTPStatus.UNAUTHORIZED
+    detail: str = "У вас недостаточно прав для просмотра данной страницы."
+
+
 class ObjectAlreadyExistsError(BadRequestError):
     def __init__(self, model: DatabaseModel):
         self.detail = f"Объект '{model.__repr__()}' уже существует."
@@ -33,7 +38,7 @@ class ObjectNotFoundError(NotFoundError):
 class UserNotFoundError(NotFoundError):
     """Пользователь не найден."""
 
-    detail = "Пользователь не найден."
+    detail: str = "Пользователь не найден."
 
 
 class InvalidAuthenticationDataError(BadRequestError):

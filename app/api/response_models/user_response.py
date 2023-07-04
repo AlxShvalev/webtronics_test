@@ -1,4 +1,3 @@
-from datetime import datetime
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -12,7 +11,6 @@ class UserResponse(BaseModel):
     name: str
     surname: str | None
     email: str
-    last_login_at: datetime | None
 
     class Config:
         orm_mode = True
