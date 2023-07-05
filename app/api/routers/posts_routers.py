@@ -33,6 +33,11 @@ class PostCBV:
     async def get_posts(self) -> list[PostWithAuthorResponse]:
         return await self.post_service.get_posts()
 
+    @router.get("/{post_id}", response_model=PostResponse, status_code=HTTPStatus.OK, summary="Get post by id.")
+    async def get_post(self, post_id: UUID) -> PostResponse:
+        """Get post by id."""
+        return await self.post_service.get_post(post_id)
+
     @router.patch("/{post_id}", response_model=PostResponse, status_code=HTTPStatus.OK, summary="Update post.")
     async def update_post(
         self, post_id: UUID, post_data: PostUpdateRequest, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())
