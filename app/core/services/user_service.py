@@ -83,6 +83,11 @@ class UserService:
         )
         return await self.__user_repository.create(user)
 
+    async def get_users(self) -> list[User]:
+        """Get all users."""
+        users = await self.__user_repository.get_all()
+        return users
+
     async def get_user_by_id(self, id: UUID) -> User:
         """Get user."""
         return await self.__user_repository.get(id)

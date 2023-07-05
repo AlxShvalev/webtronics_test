@@ -30,6 +30,17 @@ class UserCBV:
         return await self.user_service.register_new_user(schema)
 
     @router.get(
+        "/",
+        response_model=list[UserResponse],
+        response_model_exclude_none=True,
+        status_code=HTTPStatus.CREATED,
+        summary="Список пользователей.",
+    )
+    async def get_all_users(self) -> [list[UserResponse]]:
+        """Get all users."""
+        return await self.user_service.get_users()
+
+    @router.get(
         "/{user_id}",
         response_model=UserResponse,
         response_model_exclude_none=True,
