@@ -7,6 +7,7 @@ from fastapi_restful.cbv import cbv
 
 from app.api.request_models.post_requests import PostCreateRequest, PostUpdateRequest
 from app.api.response_models.post_response import PostResponse, PostWithAuthorResponse
+from app.core.services.like_service import LikeService
 from app.core.services.post_service import PostService
 from app.core.services.user_service import UserService
 
@@ -17,6 +18,7 @@ router = APIRouter(prefix="/posts", tags=["Posts"])
 class PostCBV:
     """Class for Post routing."""
 
+    like_service: LikeService = Depends()
     post_service: PostService = Depends()
     user_service: UserService = Depends()
 
@@ -51,3 +53,21 @@ class PostCBV:
     ) -> PostResponse:
         user = await self.user_service.get_user_by_token(token.credentials)
         return await self.post_service.delete_post(post_id, user)
+
+    @router.post("/{post_id}/like", response_model=PostResponse, status_code=HTTPStatus.OK)
+    async def like_post(
+        self, post_id: UUID, like_value: bool, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())
+    ) -> PostResponse:
+        user = await self.user_service.get_user_by_token(token.credentials)
+        post = await self.post_service.get_post(post_id)
+        await self.like_service.like_dislike(user_id=user.id, post=post, like_value=like_value)
+        return post
+
+    @router.delete("/{post_id/like", response_model=PostResponse, status_code=HTTPStatus.OK)
+    async def delete_like(
+        self, post_id: UUID, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())
+    ) -> PostResponse:
+        user = await self.user_service.get_user_by_token(token.credentials)
+        post = await self.post_service.get_post(post_id)
+        await self.like_service.delete_like(user.id, post.id)
+        return post
