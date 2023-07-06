@@ -6,7 +6,11 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi_restful.cbv import cbv
 
 from app.api.request_models.post_requests import PostCreateRequest, PostUpdateRequest
-from app.api.response_models.post_response import PostResponse, PostWithAuthorResponse
+from app.api.response_models.post_response import (
+    PostExtendedResponse,
+    PostResponse,
+    PostWithAuthorResponse,
+)
 from app.core.services.like_service import LikeService
 from app.core.services.post_service import PostService
 from app.core.services.user_service import UserService
@@ -35,10 +39,10 @@ class PostCBV:
     async def get_posts(self) -> list[PostWithAuthorResponse]:
         return await self.post_service.get_posts()
 
-    @router.get("/{post_id}", response_model=PostResponse, status_code=HTTPStatus.OK, summary="Get post by id.")
-    async def get_post(self, post_id: UUID) -> PostResponse:
+    @router.get("/{post_id}", response_model=PostExtendedResponse, status_code=HTTPStatus.OK, summary="Get post by id.")
+    async def get_post(self, post_id: UUID) -> PostExtendedResponse:
         """Get post by id."""
-        return await self.post_service.get_post(post_id)
+        return await self.post_service.get_post_extended(post_id)
 
     @router.patch("/{post_id}", response_model=PostResponse, status_code=HTTPStatus.OK, summary="Update post.")
     async def update_post(
@@ -54,20 +58,20 @@ class PostCBV:
         user = await self.user_service.get_user_by_token(token.credentials)
         return await self.post_service.delete_post(post_id, user)
 
-    @router.post("/{post_id}/like", response_model=PostResponse, status_code=HTTPStatus.OK)
+    @router.post("/{post_id}/like", response_model=PostExtendedResponse, status_code=HTTPStatus.OK)
     async def like_post(
         self, post_id: UUID, value: bool, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())
-    ) -> PostResponse:
+    ) -> PostExtendedResponse:
         user = await self.user_service.get_user_by_token(token.credentials)
-        post = await self.post_service.get_post(post_id)
+        post = await self.post_service.get_post_simple(post_id)
         await self.like_service.like_dislike(user_id=user.id, post=post, like_value=value)
-        return post
+        return await self.post_service.get_post_extended(post_id)
 
-    @router.delete("/{post_id}/like", response_model=PostResponse, status_code=HTTPStatus.OK)
+    @router.delete("/{post_id}/like", response_model=PostExtendedResponse, status_code=HTTPStatus.OK)
     async def delete_like(
         self, post_id: UUID, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())
-    ) -> PostResponse:
+    ) -> PostExtendedResponse:
         user = await self.user_service.get_user_by_token(token.credentials)
-        post = await self.post_service.get_post(post_id)
+        post = await self.post_service.get_post_simple(post_id)
         await self.like_service.delete_like(user.id, post.id)
-        return post
+        return await self.post_service.get_post_extended(post_id)

@@ -24,9 +24,13 @@ class PostService:
         """Get Posts with authors."""
         return await self.__post_repository.get_posts_with_authors()
 
-    async def get_post(self, post_id: UUID) -> Post:
+    async def get_post_simple(self, post_id: UUID) -> Post:
         """Get post by id."""
-        post = await self.__post_repository.get_post(post_id)
+        return await self.__post_repository.get_post_author(post_id)
+
+    async def get_post_extended(self, post_id: UUID) -> Post:
+        """Get post by id with extra fields."""
+        post = await self.__post_repository.get_post_extended(post_id)
         if post is None:
             raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Пост не найден.")
         return post

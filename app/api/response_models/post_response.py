@@ -19,6 +19,11 @@ class PostResponse(BaseModel):
         orm_mode = True
 
 
+class PostExtendedResponse(PostResponse):
+    likes: int
+    dislikes: int
+
+
 class PostWithAuthorResponse(PostResponse):
     """Body response for Post with User."""
 
