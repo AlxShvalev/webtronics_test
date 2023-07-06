@@ -58,4 +58,4 @@ class Like(Base):
     user = relationship("User", back_populates="likes")
     post_id = Column(UUID(as_uuid=True), ForeignKey(Post.id, ondelete="CASCADE"), nullable=False)
     post = relationship("Post", back_populates="likes")
-    like = Column(BOOLEAN, nullable=False)
+    value = Column(BOOLEAN, nullable=False)
