@@ -56,14 +56,14 @@ class PostCBV:
 
     @router.post("/{post_id}/like", response_model=PostResponse, status_code=HTTPStatus.OK)
     async def like_post(
-        self, post_id: UUID, like_value: bool, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())
+        self, post_id: UUID, value: bool, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())
     ) -> PostResponse:
         user = await self.user_service.get_user_by_token(token.credentials)
         post = await self.post_service.get_post(post_id)
-        await self.like_service.like_dislike(user_id=user.id, post=post, like_value=like_value)
+        await self.like_service.like_dislike(user_id=user.id, post=post, like_value=value)
         return post
 
-    @router.delete("/{post_id/like", response_model=PostResponse, status_code=HTTPStatus.OK)
+    @router.delete("/{post_id}/like", response_model=PostResponse, status_code=HTTPStatus.OK)
     async def delete_like(
         self, post_id: UUID, token: HTTPAuthorizationCredentials = Depends(HTTPBearer())
     ) -> PostResponse:

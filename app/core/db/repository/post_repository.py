@@ -27,6 +27,7 @@ class PostRepository(AbstractRepository):
                 Post.id,
                 Post.title,
                 Post.text,
+                Post.author_id,
                 Post.created_at,
                 Post.updated_at,
                 # func.count(Post.likes).label("likes")
