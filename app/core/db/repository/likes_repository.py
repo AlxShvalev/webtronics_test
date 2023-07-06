@@ -4,6 +4,7 @@ from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.db.db import get_async_session
 from app.core.db.models import Like
 from app.core.db.repository.abstract_repository import AbstractRepository
 
@@ -11,7 +12,7 @@ from app.core.db.repository.abstract_repository import AbstractRepository
 class LikeRepository(AbstractRepository):
     """Repository for Like model."""
 
-    def __init__(self, session: AsyncSession = Depends()) -> None:
+    def __init__(self, session: AsyncSession = Depends(get_async_session)) -> None:
         super().__init__(session, Like)
 
     async def get_by_user_and_post_ids(self, user_id: UUID, post_id: UUID) -> Like:
