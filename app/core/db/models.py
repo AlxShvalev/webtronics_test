@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import TIMESTAMP, Column, String, func
+from sqlalchemy import BOOLEAN, TIMESTAMP, Column, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import as_declarative
 from sqlalchemy.orm import declared_attr, relationship
@@ -52,9 +52,10 @@ class Post(Base):
 
 
 class Like(Base):
-    """Model for posts likes storage."""
+    """Model for posts likes/dislikes storage."""
 
     user_id = Column(UUID(as_uuid=True), ForeignKey(User.id, ondelete="CASCADE"), nullable=False)
     user = relationship("User", back_populates="likes")
     post_id = Column(UUID(as_uuid=True), ForeignKey(Post.id, ondelete="CASCADE"), nullable=False)
     post = relationship("Post", back_populates="likes")
+    like = Column(BOOLEAN, nullable=False)
