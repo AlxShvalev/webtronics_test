@@ -33,7 +33,7 @@ class UserCBV:
         "/",
         response_model=list[UserResponse],
         response_model_exclude_none=True,
-        status_code=HTTPStatus.CREATED,
+        status_code=HTTPStatus.OK,
         summary="Список пользователей.",
     )
     async def get_all_users(self) -> [list[UserResponse]]:
