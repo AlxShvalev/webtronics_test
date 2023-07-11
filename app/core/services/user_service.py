@@ -1,14 +1,14 @@
 import datetime as dt
-from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from app.api.request_models.user_requests import LoginRequest, UserCreateRequest
 from app.api.response_models.user_response import UserLoginResponse
+from app.core import exceptions
 from app.core.db.models import User
 from app.core.db.repository.user_repository import UserRepository
 from app.core.settings import settings
@@ -35,7 +35,7 @@ class UserService:
         user = await self.__user_repository.get_by_username(auth_data.username)
         password = auth_data.password.get_secret_value()
         if not self._verify_hashed_password(password, user.hashed_password):
-            raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Неверный email или пароль")
+            raise exceptions.InvalidAuthenticationDataError
         return user
 
     def __create_jwt_token(self, username: str, expires_delta: int) -> str:
@@ -54,14 +54,10 @@ class UserService:
         try:
             payload = jwt.decode(token=token, key=settings.SECRET_KEY, algorithms=[ALGORITHM])
         except JWTError:
-            raise HTTPException(
-                status_code=HTTPStatus.UNAUTHORIZED, detail="У вас нeт прав для просмотра данной страницы"
-            )
+            raise exceptions.ForbiddenError
         username = payload.get("username")
         if not username:
-            raise HTTPException(
-                status_code=HTTPStatus.UNAUTHORIZED, detail="У вас нeт прав для просмотра данной страницы"
-            )
+            raise exceptions.ForbiddenError
         return username
 
     async def login(self, auth_data: LoginRequest) -> UserLoginResponse:

@@ -1,9 +1,9 @@
-from http import HTTPStatus
 from typing import Optional
 from uuid import UUID
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 
+from app.core import exceptions
 from app.core.db.models import Like, Post
 from app.core.db.repository.likes_repository import LikeRepository
 
@@ -22,15 +22,13 @@ class LikeService:
         If Like has the same value raise exception. Then save Like.
         """
         if user_id == post.author_id:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST, detail="Нельзя ставить лайк или дизлайк своим постам."
-            )
+            raise exceptions.LikesToSelfPostsError
         like = await self._get_like(user_id, post.id)
         if like is None:
             like = Like(user_id=user_id, post_id=post.id)
         if like.value == like_value:
             like_str = "лайк" if like_value is True else "дизлайк"
-            raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail=f"Вы уже поставили {like_str} этой записи.")
+            raise exceptions.LikeAlreadyExistsError(like_str)
         like.value = like_value
         return await self.__like_repository.save_like(like)
 
@@ -38,7 +36,5 @@ class LikeService:
         """Delete like if exists, else raise exception."""
         like = await self._get_like(user_id, post_id)
         if like is None:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST, detail="Вы еще не отметили эту запись лайком или дизлайком."
-            )
+            raise exceptions.LikeNotExistsError
         return await self.__like_repository.delete(like)

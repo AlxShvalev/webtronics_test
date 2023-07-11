@@ -1,12 +1,10 @@
 from http import HTTPStatus
 from uuid import UUID
 
-from fastapi import HTTPException
-
 from app.core.db.models import Base as DatabaseModel
 
 
-class ApplicationError(HTTPException):
+class ApplicationError(Exception):
     """Исключение для внутренней бизнес-логики."""
 
     detail: str = "О! Какая-то неизвестная ошибка. Мы её обязательно опознаем и исправим!"
@@ -14,6 +12,11 @@ class ApplicationError(HTTPException):
 
 class BadRequestError(ApplicationError):
     status_code: HTTPStatus = HTTPStatus.BAD_REQUEST
+
+
+class ForbiddenError(ApplicationError):
+    status_code: HTTPStatus = HTTPStatus.FORBIDDEN
+    detail: str = "У вас нет прав для просмотра данной страницы."
 
 
 class NotFoundError(ApplicationError):
@@ -44,4 +47,23 @@ class UserNotFoundError(NotFoundError):
 class InvalidAuthenticationDataError(BadRequestError):
     """Введены неверные данные для аутентификации."""
 
-    detail = "Неверный email или пароль."
+    detail: str = "Неверный email или пароль."
+
+
+class LikesToSelfPostsError(BadRequestError):
+    """Нельзя стваить лайки/дизлайки своим постам."""
+
+    detail: str = "Нельзя ставить лайк или дизлайк своим постам."
+
+
+class LikeAlreadyExistsError(BadRequestError):
+    """Лайк/дизлайк уже поставлен."""
+
+    def __init__(self, like_value: str):
+        self.detail = f"Вы уже поставили {like_value} этой записи."
+
+
+class LikeNotExistsError(BadRequestError):
+    """Лайк.дизлайк для этой записи не существует."""
+
+    detail: str = "Вы еще не поставили лайк/дизлайк этой записи."
