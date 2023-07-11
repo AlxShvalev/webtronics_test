@@ -26,7 +26,7 @@ class PostService:
 
     async def get_post_simple(self, post_id: UUID) -> Post:
         """Get post by id."""
-        return await self.__post_repository.get_post_author(post_id)
+        return await self.__post_repository.get(post_id)
 
     async def get_post_extended(self, post_id: UUID) -> Post:
         """Get post by id with extra fields."""
